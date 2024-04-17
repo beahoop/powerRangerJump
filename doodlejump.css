@@ -1,0 +1,9 @@
+body {
+    text-align: center;
+    background-color: black;
+}
+
+#board {
+    /* background: rgba(238, 130, 238, .1)  ; */
+    background-image: url("./background2.gif");
+}
