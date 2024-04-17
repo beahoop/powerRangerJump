@@ -5,24 +5,24 @@ let boardHeight = window.innerHeight - 20;
 let context;
 
 //doodler
-let dogWidth = 60;
-let dogHeight = 40;
-let dogX = boardWidth / 2 - dogWidth / 2;
-let dogY = (boardHeight * 7) / 8 - dogHeight;
-let dogRightImg;
-let dogLeftImg;
+let rangerWidth = 35;
+let rangerHeight = 70;
+let rangerX = boardWidth / 2 - rangerWidth / 2;
+let rangerY = (boardHeight * 7) / 8 - rangerHeight;
+let rangerRightImg;
+let rangerLeftImg;
 
-let dog = {
+let ranger = {
   img: null,
-  x: dogX,
-  y: dogY,
-  width: dogWidth,
-  height: dogHeight,
+  x: rangerX,
+  y: rangerY,
+  width: rangerWidth,
+  height: rangerHeight,
 };
 
 //physics
 let velocityX = 0;
-let velocityY = 0; //dog jump speed
+let velocityY = 0; //ranger jump speed
 let initialVelocityY = -8; //starting velocity Y
 let gravity = 0.4; // slows down velocity
 
@@ -44,15 +44,21 @@ window.onload = function () {
   context = board.getContext('2d');
 
   //load images
-  dogRightImg = new Image();
-  dogRightImg.src = './ToasterDog.gif';
-  dog.img = dogRightImg;
-  dogRightImg.onload = function () {
-    context.drawImage(dog.img, dog.x, dog.y, dog.width, dog.height);
+  rangerRightImg = new Image();
+  rangerRightImg.src = './rangerRight.png';
+  ranger.img = rangerRightImg;
+  rangerRightImg.onload = function () {
+    context.drawImage(
+      ranger.img,
+      ranger.x,
+      ranger.y,
+      ranger.width,
+      ranger.height
+    );
   };
 
-  dogLeftImg = new Image();
-  dogLeftImg.src = './ToasterDogLeft.png';
+  rangerLeftImg = new Image();
+  rangerLeftImg.src = './rangerLeft.png';
 
   platformImg = new Image();
   platformImg.src = './rainbow_platform.png';
@@ -60,7 +66,7 @@ window.onload = function () {
   velocityY = initialVelocityY;
   placePlatforms();
   requestAnimationFrame(update);
-  document.addEventListener('keydown', moveDog);
+  document.addEventListener('keydown', moveranger);
 };
 const update = () => {
   requestAnimationFrame(update);
@@ -78,26 +84,32 @@ const update = () => {
   context.clearRect(0, 0, board.width, board.height);
 
   //doodler
-  dog.x += velocityX;
-  if (dog.x > boardWidth) {
-    dog.x = 0;
-  } else if (dog.x + dog.width < 0) {
-    dog.x = boardWidth;
+  ranger.x += velocityX;
+  if (ranger.x > boardWidth) {
+    ranger.x = 0;
+  } else if (ranger.x + ranger.width < 0) {
+    ranger.x = boardWidth;
   }
 
-  velocityY += gravity; // slows dog down
-  dog.y += velocityY; // move dog up
-  if (dog.y > board.height) {
+  velocityY += gravity; // slows ranger down
+  ranger.y += velocityY; // move ranger up
+  if (ranger.y > board.height) {
     gameOver = true;
   }
-  context.drawImage(dog.img, dog.x, dog.y, dog.width, dog.height);
+  context.drawImage(
+    ranger.img,
+    ranger.x,
+    ranger.y,
+    ranger.width,
+    ranger.height
+  );
 
   //platforms
   platformArray.map((platform, i) => {
-    if (velocityY < 0 && dog.y < (boardHeight * 3) / 4) {
+    if (velocityY < 0 && ranger.y < (boardHeight * 3) / 4) {
       platform.y -= initialVelocityY; //slide platform down
     }
-    if (detectCollision(dog, platform) && velocityY >= 0) {
+    if (detectCollision(ranger, platform) && velocityY >= 0) {
       velocityY = initialVelocityY; //jump
     }
     context.drawImage(
@@ -130,23 +142,23 @@ const update = () => {
   }
 };
 
-function moveDog(e) {
+function moveranger(e) {
   if (e.code == 'ArrowRight' || e.code == 'KeyD') {
     //move right
     velocityX = 4;
-    dog.img = dogRightImg;
+    ranger.img = rangerRightImg;
   } else if (e.code == 'ArrowLeft' || e.code == 'KeyA') {
     //move left
     velocityX = -4;
-    dog.img = dogLeftImg;
+    ranger.img = rangerLeftImg;
   } else if (e.code == 'Space' && gameOver) {
     //reset
-    dog = {
-      img: dogRightImg,
-      x: dogX,
-      y: dogY,
-      width: dogWidth,
-      height: dogHeight,
+    ranger = {
+      img: rangerRightImg,
+      x: rangerX,
+      y: rangerY,
+      width: rangerWidth,
+      height: rangerHeight,
     };
 
     velocityX = 0;
@@ -173,19 +185,26 @@ function placePlatforms() {
   platformArray.push(platform);
 
   platformArray = platformArray.concat(
-    Array.from({ length: Math.floor(Math.random() * (14 - 8) + 8) }, (_, i) => {
-      let randomX = Math.floor((Math.random() * boardWidth * 3) / 4); //(0-1) * boardWidth*3/4
-      return {
-        img: platformImg,
-        x: randomX,
-        y: boardHeight - 75 * i - 150,
-        width: platformWidth,
-        height: platformHeight,
-      };
-    })
+    Array.from(
+      {
+        length: Math.floor(
+          Math.random() * (boardHeight / 75) + (Math.random() * (14 - 4) + 4)
+        ),
+      },
+      (_, i) => {
+        let randomX = Math.floor((Math.random() * boardWidth * 3) / 4); //(0-1) * boardWidth*3/4
+        return {
+          img: platformImg,
+          x: randomX,
+          y: boardHeight - 75 * i - 150,
+          width: platformWidth,
+          height: platformHeight,
+        };
+      }
+    )
   );
 }
-
+console.log('platform', platformArray.length);
 function newPlatform() {
   let randomX = Math.floor((Math.random() * boardWidth * 3) / 4); //(0-1) * boardWidth*3/4
   let platform = {
